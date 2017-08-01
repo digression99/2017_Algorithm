@@ -1,5 +1,22 @@
 // 20170801
 
+/*
+ time limit에 걸림..
+ unordered_set, unordered_map 에 대하여
+ 배울 수 있어서 좋았다.
+ 좀더 자세히 파서 잘 활용하자.
+ 
+ 또한 불필요한 정보를 저장할 필요 없이
+ 다른 방법도 있다는 것을 기억하자.
+ 
+ 1시간 해서 안되면 버리자.
+ 
+ 
+ 
+ 
+ 
+ */
+
 #include <iostream>
 #include <vector>
 #include <map>
