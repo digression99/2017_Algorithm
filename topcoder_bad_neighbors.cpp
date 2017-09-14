@@ -49,12 +49,6 @@
 //
 // - 바로 옆 빼고 몇 칸을 뛰어도 된다. 따라서 한 칸 건너뛴 뒤에 한칸씩 더하면서 들어가야 한다.
 //
-//
-//
-//
-//
-//
-
 
 
 #include <iostream>
@@ -64,43 +58,129 @@ using namespace std;
 class BadNeighbors{
 public:
     
+    int maxDonations(vector<int> donations) {
+        int i, ans = 0;
+        
+        int N = donations.size();
+        int * dp = new int[N];
+        
+        for (int i = 0; i < N - 1; ++i) {
+            dp[i] = donations[i];
+            if (i > 0) dp[i] = std::max(dp[i], dp[i - 1]);
+            if (i > 1) dp[i] = std::max(dp[i], dp[i - 2] + donations[i]);
+            ans = std::max(ans, dp[i]);
+        }
+        
+        for (int i = 0; i < N - 1; ++i) {
+            dp[i] = donations[i + 1];
+            if (i > 0) dp[i] = std::max(dp[i], dp[i - 1]);
+            if (i > 1) dp[i] = std::max(dp[i], dp[i - 2] + donations[i + 1]);
+            ans = std::max(ans, dp[i]);
+        }
+        
+        delete[] dp;
+        return ans;
+    }
+    
     int m[41]; // memoization
+    bool visited[41];
     
-    int dp(vector<int> & donations, int pos, int nowSum)
+    int dp(vector<int> & donations, int pos)
     {
-        if (m[pos]) return m[pos];
-        int mx = 0;
+        if (pos >= donations.size()) pos %= donations.size();
+
+        if (visited[pos] ||
+            visited[(pos + 1) % donations.size()] ||
+            visited[(pos - 1 + donations.size()) % donations.size()])
+            return 0;
+        //visited[pos] = true;
         
-        if (pos + 2 > donations.size())
+        if (m[pos] > 0) return m[pos]; // memoization
+        
+        int i = pos + 1;
+        visited[pos] = true;
+        int mx = donations[pos] + dp(donations, i + 1);
+        
+        visited[pos] = false;
+        while (!visited[i % donations.size()])
         {
-            m[pos] = nowSum;
-            return m[pos];
-        }
-        pos += 2;
-        
-        while (pos < donations.size())
-        {
-            mx = std::max(mx, dp(donations, pos, nowSum + donations[pos]));
-            pos += 1;
+            mx = std::max(mx, dp(donations, i));
+            ++i;
         }
         
-        return 0;
+        return mx;
+//        int i = pos + 1;
+//        while (!visited[i % donations.size()])
+//        {
+//            visited[pos] = true;
+//            int left = donations[pos] + dp(donations, i + 1);
+//            visited[pos] = false;
+//            int right = dp(donations, i );
+//            mx = std::max(mx, std::max(left, right));
+//            //mx = std::max(mx, std::max(donations[pos] + dp(donations, i + 1), dp(donations, i)));
+//            i++;
+//        }
+//        
+////        for (int i = pos + 1; i < donations.size(); ++i)
+////        {
+////            if (visited[i]) break;
+////            //if (!visited[i])
+////            mx = std::max(mx, std::max(donations[pos] + dp(donations, i + 1), dp(donations, i)));
+////        }
+//        
+//        visited[pos] = false;
+//        return mx;
     }
     
-    int maxDonations(vector <int> donations)
-    {
-        int res = 0;
-        
-        for (int i = 0; i < donations.size(); ++i)
-        {
-            res = std::max(res, dp(donations, i, 0));
-        }
-        return res;
-    }
+    
+//    int maxDonations(vector<int> donations) {
+//        memset(m, 0, sizeof(m));
+//        memset(visited, false, sizeof(visited));
+//        
+//        return dp(donations, 0);
+//    }
+    
+//    int dp(vector<int> & donations, int pos, int nowSum)
+//    {
+//        if (m[pos]) return m[pos];
+//        int mx = 0;
+//        
+//        if (pos + 2 > donations.size())
+//        {
+//            m[pos] = nowSum;
+//            return m[pos];
+//        }
+//        pos += 2;
+//        
+//        while (pos < donations.size())
+//        {
+//            mx = std::max(mx, dp(donations, pos, nowSum + donations[pos]));
+//            pos += 1;
+//        }
+//        
+//        return 0;
+//    }
+//    
+//    int maxDonations(vector <int> donations)
+//    {
+//        int res = 0;
+//        
+//        for (int i = 0; i < donations.size(); ++i)
+//        {
+//            res = std::max(res, dp(donations, i, 0));
+//        }
+//        return res;
+//    }
 };
 
 
 int main()
 {
+    BadNeighbors obj = BadNeighbors();
+    vector<int> tc1 = {10, 3, 2, 5, 7, 8};
+    
+    cout << obj.maxDonations(tc1) << endl;
+    
+    
     return 0;
 }
