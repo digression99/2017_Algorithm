@@ -17,11 +17,14 @@ public:
     unordered_map<char, Node *> childs;
     
     Node(char c = ' ', int val = 0) : c(c), val(val) {}
+    ~Node() {
+        for (auto c : childs)
+            delete c.second;
+    }
 };
 
 class MapSum {
 public:
-    unordered_map<string, int> hash;
     Node * root;
     /** Initialize your data structure here. */
     MapSum() {
