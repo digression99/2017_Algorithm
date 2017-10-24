@@ -1,127 +1,114 @@
 #include <iostream>
-#include <vector>
+#include <string>
 using namespace std;
 
-int m[100][100];
+int memo[101][101];
 
-string pat, str;
+bool exhaustive(string & str, int start, string & pat) {
+    
+//    if (start >= pat.length()) {
+//        if (start >= str.length()) return true;
+//        else return false;
+//    }
+    while (start < str.length() && start < pat.length() &&
+           pat[start] == str[start]) start++;
 
-bool dp(int patPos, int strPos)
-{
-    int & ret = m[patPos][strPos];
+//    if (pat[start] >= 'a' && pat[start] <= 'z') {
+//        if (pat[start] != str[start]) return false;
+//        while (start < str.length() && start < pat.length() &&
+//               pat[start] == str[start]) start++; // jump every char.
+//       // return exhaustive(str, start, pat);
+//    }
+    
+    if (start >= pat.length()) return start == str.length();
+    // if it reaches the end of the pattern, then return.
+    // this means that the end of the pattern isn't *.
+    
+    if (pat[start] == '?') {
+        if (start >= str.length()) return false;
+        else return exhaustive(str, start + 1, pat);
+    } else if (pat[start] == '*') { // pat[start] == '*'
+        for (int i = start + 1; i < str.length(); ++i) {
+            if (exhaustive(str, i, pat)) return true;
+        }
+//        bool isMatched = false;
+//        for (int i = start; i < str.length(); ++i) {
+//            isMatched = exhaustive(str, start + i, pat);
+//            if (isMatched) return true;
+//        }
+    }
+    return false;
+}
+
+int dp(string & str, string & pat, int strStart, int patStart) {
+    
+    int & ret = memo[strStart][patStart];
     if (ret != -1) return ret;
     
-    //if (patPos == pat.length() && strPos == str.length()) return ret = 1;
-    
-    // patPos == pat.length()일 경우 s도 끝이 아니라면 리턴 false.
-    if (patPos == pat.length()) return ret = (strPos == str.length());
-    // strPos == str.length()라면 와일드카드일 경우만 참.
-    
-//    if ((patPos == pat.length() && strPos < str.length()) ||
-//        (patPos < pat.length() && strPos == str.length()))
-//        return ret = 0;
-    
-    if (pat[patPos] == '*') { // patPos + 1, strPos : * is none.
-        //if (strPos == str.length() - 1) return ret = 1;
-        if (dp(patPos + 1, strPos) || // * is none case.
-            dp(patPos, strPos + 1)) // * matched to one char.
-            return ret = 1;
-        else ret = 0;
-    } else if (pat[patPos] == '?' || (pat[patPos] == str[strPos]))
-            return dp(patPos + 1, strPos + 1);
-
-    return ret = 0;
-}
-
-// original idea.
-//bool mydp(int patPos, int strPos)
-//{
-//    for (int i = 0; i < str.length(); ++i)
-//    {
-//        if ((patPos > 0 && m[patPos - 1][i]) && pat[patPos] == '?' || pat[patPos] == str[strPos])  // 그 전이 참.
-//        
-//        
-//        
-//        
-//        
-//    }
-//    
-//    
-//    return false;
-//}
-
-
-bool dp(string & pat, string & str) // patlen : pat.length(), strl : str.length()
-{
-    int wl = (int)pat.length();
-    int sl = (int)str.length();
-    
-    
-    
-    for (int i = 0; i < wl; ++i)
-    {
-        if (pat[i] == '*' || pat[i] == '?')
-        {
-            m[i][0] = true;
-            for (int j = 1; j < sl; ++j)
-            {
-                
-            }
-            
-            
-            
-        }
-        
-        
-
+    while (strStart < str.length() && patStart < pat.length() &&
+           str[strStart] == pat[patStart]) {
+        strStart++; patStart++;
     }
     
+    if (patStart >= pat.length()) return strStart == str.length();
     
-    
-    
-    return false;
-    
-    
-    
+    if (pat[patStart] == '?') {
+        return ret = dp(str, pat, strStart + 1, patStart + 1);
+    } else if (pat[patStart] == '*') {
+        for (int i = 0; i + strStart < str.length(); ++i) {
+            if (dp(str, pat, strStart + i, patStart + 1))
+                return ret = 1;
+        }
+    }
+    return ret = false;
 }
 
-//1
-//*p*p
-//1
-//helpelp
-
-//1
-//*p*
-//1
-//helpp
-
+int dp2(string & str, string & pat,int strStart, int patStart) {
+    int & ret = memo[patStart][strStart]; // does it matter if patStart is exchanged with strStart?
+    if (ret != -1) return ret;
+    
+    if (strStart < str.length() && patStart < pat.length() &&
+        (pat[patStart] == '?' || str[strStart] == pat[patStart]))
+        return ret = dp(str, pat, strStart + 1, patStart + 1);
+    
+    if (patStart >= pat.length()) return ret = (strStart == str.length());
+    
+    if (pat[patStart] == '*') {
+        if (dp2(str, pat, strStart + 1, patStart) ||
+            (strStart < str.length() && dp2(str, pat, strStart, patStart + 1)))
+            return ret = true;
+    }
+    return ret = false;
+}
 
 int main()
 {
-    int c, n;
-    vector<string> strs;
-    //string pat;
-    //string end;
-    
-    cin >> c;
-    cin >> pat;
-    
-    for (int i = 0; i < c; ++i)
+    int tc = 0;
+
+    cin >> tc;
+
+    for (int i = 0; i < tc; ++i)
     {
+        string pat;
+        cin >> pat;
+        int n;
         cin >> n;
-        
         for (int j = 0; j < n; ++j)
         {
-            cin >> str;
+            string temp;
+            cin >> temp;
+
+            memset(memo, -1, sizeof(memo));
+
+            if (dp2(temp, pat, 0, 0)) cout << temp << endl;
+            else cout << "not matched : " << temp << endl;
             
-            memset(m, -1, sizeof(m));
             
-            if (dp(0, 0)) cout << str << endl;
-            //if (dp(pat, str) == 1) cout << str << endl;
+            //if (exhaustive(temp, 0, pat)) cout << temp << endl;
+            //else cout << "not matched : " << temp << endl;
         }
     }
-    
-    //cin >> end;
-    
+
     return 0;
 }
+
