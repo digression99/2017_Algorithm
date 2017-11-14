@@ -30,17 +30,6 @@ private:
             return search_helper(n->children[s[strIdx]], s, strIdx + 1);
         return false;
     }
-    
-    //TrieNode * deleteKey_helper_search(TrieNode * n)
-    
-    TrieNode * deleteKey_helper_search(TrieNode * n, string s, int strIdx) {
-        if (strIdx == s.length()) return n;
-        
-        auto it = n->children.find(s[strIdx]);
-        if (it == n->children.end()) return n;
-        if (n->children.find(s[strIdx]) == n->children.end()) return nullptr;
-        return deleteKey_helper_search(it->second, s, strIdx + 1);
-    }
     bool delete_helper(TrieNode * n, string s, int strIdx) {
         if (strIdx == s.length()) {
             if (n->children.size() > 0 || !n->isEndOfWord) return false;
@@ -76,19 +65,14 @@ public:
     
     bool deleteKey(string s) {
         if (!this->search(s)) return false;
-        delete_helper(&this->root, s, 0);
-        return true;
-        
-        // check if it exists.
-        //TrieNode * searchNode = deleteKey_helper_search(&this->root, s, 0);
-        //if (!searchNode) return false;
-        
-        //if (searchNode)
-        // 일단 key length까지 서치한다.
-        // 그러면서, false 가 나오는 위치까지 delete.
-        //return true;
+        if (delete_helper(&this->root, s, 0)) {
+            auto it = this->root.children.find(s[0]);
+            if (it->second->children.size() > 0) return false;
+            this->root.children.erase(it);
+            return true;
+        }
+        return false;
     }
-    
 };
 
 //class Trie { // array version trie.
@@ -165,9 +149,11 @@ int main() {
     cout << trie.search("ans") << endl;
     
     trie.deleteKey("there");
+    trie.deleteKey("their");
     // failure case.
     cout << trie.search("there") << endl;
     cout << trie.search("their") << endl;
+    cout << trie.search("t") << endl;
     
     return 0;
 }
