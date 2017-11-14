@@ -32,8 +32,15 @@ private:
     }
     bool delete_helper(TrieNode * n, string s, int strIdx) {
         if (strIdx == s.length()) {
-            if (n->children.size() > 0 || !n->isEndOfWord) return false;
-            // key is prefix of other keys, or key doesn't exists.
+            
+            if (!n->isEndOfWord) return false; // search fail.
+            
+            // if has children. it means that the key is the prefix of another key.
+            if (n->children.size() > 0) {
+                n->isEndOfWord = false;
+                return false;
+            }
+            // no children. it means that this is the only node to be deleted.
             return true;
         }
         auto it = n->children.find(s[strIdx]);
@@ -41,8 +48,7 @@ private:
         {
              if (delete_helper(it->second, s, strIdx + 1)) {
                  n->children.erase(it);
-                 //delete it->second;
-                 if (n->children.size() > 0) return false;
+                 if (n->children.size() > 0 || n->isEndOfWord) return false;
                  else return true;
              } // delete nodes till it returns false.
         } // next key doesn't exists and strIdx couldn't meet keylength.
@@ -65,13 +71,8 @@ public:
     
     bool deleteKey(string s) {
         if (!this->search(s)) return false;
-        if (delete_helper(&this->root, s, 0)) {
-            auto it = this->root.children.find(s[0]);
-            if (it->second->children.size() > 0) return false;
-            this->root.children.erase(it);
-            return true;
-        }
-        return false;
+        if (s.length() == 0) return false;
+        return delete_helper(&this->root, s, 0);
     }
 };
 
@@ -154,6 +155,16 @@ int main() {
     cout << trie.search("there") << endl;
     cout << trie.search("their") << endl;
     cout << trie.search("t") << endl;
+
+    cout << trie.search("bye") << endl;
+    trie.deleteKey("bye");
+    cout << trie.search("by") << endl;
+    trie.deleteKey("by");
+    cout << trie.search("by") << endl;
+    cout << trie.search("bye") << endl;
+    trie.insert("byebye");
+    cout << trie.search("bye") << endl;
+    cout << trie.search("byebye") << endl;
     
     return 0;
 }
