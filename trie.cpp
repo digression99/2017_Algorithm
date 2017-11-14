@@ -32,9 +32,7 @@ private:
     }
     bool delete_helper(TrieNode * n, string s, int strIdx) {
         if (strIdx == s.length()) {
-            
             if (!n->isEndOfWord) return false; // search fail.
-            
             // if has children. it means that the key is the prefix of another key.
             if (n->children.size() > 0) {
                 n->isEndOfWord = false;
@@ -68,7 +66,6 @@ public:
         if (this->root.children.find(s[0]) == this->root.children.end()) return false;
         return search_helper(this->root.children[s[0]], s, 1);
     }
-    
     bool deleteKey(string s) {
         if (!this->search(s)) return false;
         if (s.length() == 0) return false;
